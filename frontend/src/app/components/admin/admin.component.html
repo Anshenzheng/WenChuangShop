@@ -31,7 +31,30 @@
         <div class="admin-card">
           <div class="admin-card-header">
             <h3 class="admin-card-title">📦 商品管理</h3>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
+              <div class="btn-group">
+                <button 
+                  class="btn btn-sm"
+                  [class.btn-primary]="productStatus === null"
+                  [class.btn-outline]="productStatus !== null"
+                  (click)="filterProductsByStatus(null)">
+                  全部
+                </button>
+                <button 
+                  class="btn btn-sm"
+                  [class.btn-primary]="productStatus === 1"
+                  [class.btn-outline]="productStatus !== 1"
+                  (click)="filterProductsByStatus(1)">
+                  已上架
+                </button>
+                <button 
+                  class="btn btn-sm"
+                  [class.btn-primary]="productStatus === 0"
+                  [class.btn-outline]="productStatus !== 0"
+                  (click)="filterProductsByStatus(0)">
+                  已下架
+                </button>
+              </div>
               <input 
                 type="text" 
                 [(ngModel)]="productKeyword"
@@ -40,6 +63,7 @@
                 style="width: 200px;"
                 placeholder="搜索商品...">
               <button class="btn btn-primary" (click)="searchProducts()">搜索</button>
+              <button class="btn btn-success" (click)="openCreateProductModal()">+ 添加商品</button>
             </div>
           </div>
           <div class="admin-card-body">
@@ -50,13 +74,14 @@
             <table *ngIf="!loadingProducts && products.length > 0" class="table">
               <thead>
                 <tr>
-                  <th style="width: 80px;">ID</th>
-                  <th style="width: 100px;">图片</th>
+                  <th style="width: 60px;">ID</th>
+                  <th style="width: 80px;">图片</th>
                   <th>商品名称</th>
                   <th style="width: 100px;">价格</th>
                   <th style="width: 80px;">库存</th>
                   <th style="width: 80px;">销量</th>
                   <th style="width: 80px;">状态</th>
+                  <th style="width: 220px;">操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -78,6 +103,17 @@
                       {{ product.status === 1 ? '上架' : '下架' }}
                     </span>
                   </td>
+                  <td>
+                    <button class="btn btn-primary btn-sm mr-1" (click)="openEditProductModal(product)">编辑</button>
+                    <button class="btn btn-info btn-sm mr-1" (click)="openStockModal(product)">库存</button>
+                    <button 
+                      class="btn btn-sm"
+                      [class.btn-warning]="product.status === 1"
+                      [class.btn-success]="product.status === 0"
+                      (click)="toggleProductStatus(product)">
+                      {{ product.status === 1 ? '下架' : '上架' }}
+                    </button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -85,6 +121,7 @@
             <div *ngIf="!loadingProducts && products.length === 0" class="empty-state">
               <div class="empty-state-icon">📦</div>
               <h3 class="empty-state-title">暂无商品</h3>
+              <p class="empty-state-text">点击上方按钮添加第一个商品</p>
             </div>
           </div>
         </div>
@@ -146,15 +183,17 @@
         <div class="admin-card">
           <div class="admin-card-header">
             <h3 class="admin-card-title">🏷️ 分类管理</h3>
+            <button class="btn btn-success" (click)="openCreateCategoryModal()">+ 添加分类</button>
           </div>
           <div class="admin-card-body">
             <table *ngIf="categories.length > 0" class="table">
               <thead>
                 <tr>
-                  <th style="width: 80px;">ID</th>
+                  <th style="width: 60px;">ID</th>
                   <th>分类名称</th>
                   <th style="width: 100px;">排序</th>
                   <th style="width: 100px;">状态</th>
+                  <th style="width: 180px;">操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -167,6 +206,10 @@
                       {{ category.status === 1 ? '启用' : '禁用' }}
                     </span>
                   </td>
+                  <td>
+                    <button class="btn btn-primary btn-sm mr-1" (click)="openEditCategoryModal(category)">编辑</button>
+                    <button class="btn btn-danger btn-sm" (click)="deleteCategory(category)">删除</button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -174,9 +217,142 @@
             <div *ngIf="categories.length === 0" class="empty-state">
               <div class="empty-state-icon">🏷️</div>
               <h3 class="empty-state-title">暂无分类</h3>
+              <p class="empty-state-text">点击上方按钮添加第一个分类</p>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showProductModal" class="modal-overlay" (click)="closeProductModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ isEditingProduct ? '编辑商品' : '添加商品' }}</h3>
+        <button class="modal-close" (click)="closeProductModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="productForm" (ngSubmit)="submitProduct()">
+          <div class="form-group">
+            <label class="form-label">商品名称 *</label>
+            <input type="text" formControlName="name" class="form-control" placeholder="请输入商品名称">
+            <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="form-error">
+              商品名称为必填项
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">现价 *</label>
+              <input type="number" formControlName="price" class="form-control" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">原价</label>
+              <input type="number" formControlName="originalPrice" class="form-control" min="0" step="0.01" placeholder="选填">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">库存 *</label>
+              <input type="number" formControlName="stock" class="form-control" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">排序</label>
+              <input type="number" formControlName="sort" class="form-control">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">分类ID</label>
+              <input type="number" formControlName="categoryId" class="form-control" placeholder="选填">
+            </div>
+            <div class="form-group">
+              <label class="form-label">分类名称</label>
+              <input type="text" formControlName="categoryName" class="form-control" placeholder="选填">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">图片URL</label>
+            <input type="text" formControlName="image" class="form-control" placeholder="请输入图片链接">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">商品描述</label>
+            <textarea formControlName="description" class="form-control" rows="4" placeholder="请输入商品描述"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">状态</label>
+            <select formControlName="status" class="form-control">
+              <option [ngValue]="1">上架</option>
+              <option [ngValue]="0">下架</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="closeProductModal()">取消</button>
+        <button class="btn btn-primary" (click)="submitProduct()" [disabled]="submitting || productForm.invalid">
+          {{ submitting ? '提交中...' : '确定' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showStockModal" class="modal-overlay" (click)="closeStockModal()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">调整库存</h3>
+        <button class="modal-close" (click)="closeStockModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px;">商品：<strong>{{ selectedProductForStock?.name }}</strong></p>
+        <p style="margin-bottom: 16px;">当前库存：<strong>{{ selectedProductForStock?.stock }}</strong></p>
+        <form [formGroup]="stockForm">
+          <div class="form-group">
+            <label class="form-label">新库存 *</label>
+            <input type="number" formControlName="stock" class="form-control" min="0">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="closeStockModal()">取消</button>
+        <button class="btn btn-primary" (click)="updateStock()" [disabled]="submitting || stockForm.invalid">
+          {{ submitting ? '提交中...' : '确定' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showCategoryModal" class="modal-overlay" (click)="closeCategoryModal()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ isEditingCategory ? '编辑分类' : '添加分类' }}</h3>
+        <button class="modal-close" (click)="closeCategoryModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="categoryForm">
+          <div class="form-group">
+            <label class="form-label">分类名称 *</label>
+            <input type="text" formControlName="name" class="form-control" placeholder="请输入分类名称">
+            <div *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched" class="form-error">
+              分类名称为必填项
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">排序</label>
+            <input type="number" formControlName="sort" class="form-control" placeholder="数字越小越靠前">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="closeCategoryModal()">取消</button>
+        <button class="btn btn-primary" (click)="submitCategory()" [disabled]="submitting || categoryForm.invalid">
+          {{ submitting ? '提交中...' : '确定' }}
+        </button>
       </div>
     </div>
   </div>
