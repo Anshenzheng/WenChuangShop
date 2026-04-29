@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("order")
+@TableName("orders")
 public class Order {
     @TableId(type = IdType.AUTO)
     private Long id;

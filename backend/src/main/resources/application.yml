@@ -28,7 +28,7 @@ mybatis-plus:
       logic-not-delete-value: 0
 
 jwt:
-  secret: yuwen-wenchuang-shop-jwt-secret-key-2024-very-long-secret-key
+  secret: yuwen-wenchuang-shop-jwt-secret-key-2024-very-long-secret-key-for-hs512-algorithm-ensure-512-bits
   expiration: 86400000
 
 logging:

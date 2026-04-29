@@ -1,0 +1,68 @@
+.btn-info {
+  background-color: #7B9BBD;
+  color: white;
+}
+
+.btn-info:hover:not(:disabled) {
+  background-color: #6B8BAD;
+}
+
+.btn-group {
+  display: flex;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.btn-group .btn {
+  border-radius: 0;
+  border: 1px solid var(--border-color);
+}
+
+.btn-group .btn:first-child {
+  border-right: none;
+}
+
+.btn-group .btn:last-child {
+  border-left: none;
+}
+
+.btn-group .btn.btn-primary {
+  border-color: var(--primary-color);
+}
+
+.btn-group .btn.btn-outline {
+  background-color: var(--card-background);
+  color: var(--text-secondary);
+}
+
+.btn-group .btn.btn-outline:hover:not(:disabled) {
+  background-color: var(--accent-color);
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.form-row .form-group {
+  margin-bottom: 0;
+}
+
+.modal-sm {
+  max-width: 400px;
+}
+
+.mr-1 {
+  margin-right: 8px;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
