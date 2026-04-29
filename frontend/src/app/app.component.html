@@ -1,0 +1,67 @@
+<header class="header">
+  <div class="container">
+    <div class="header-content">
+      <a routerLink="/" class="logo">
+        <span class="logo-text">屿物</span>
+        <span class="logo-subtitle">文创好物</span>
+      </a>
+      
+      <nav class="nav">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">首页</a>
+        <a routerLink="/products" routerLinkActive="active">商品</a>
+        <a routerLink="/products/hot" routerLinkActive="active">热销排行</a>
+        <ng-container *ngIf="isLoggedIn && !isAdmin">
+          <a routerLink="/carts" routerLinkActive="active">购物车</a>
+          <a routerLink="/orders" routerLinkActive="active">我的订单</a>
+        </ng-container>
+        <ng-container *ngIf="isAdmin">
+          <a routerLink="/admin" routerLinkActive="active">管理后台</a>
+        </ng-container>
+      </nav>
+      
+      <div class="header-right">
+        <ng-container *ngIf="!isLoggedIn">
+          <a routerLink="/login" class="btn btn-outline">登录</a>
+          <a routerLink="/register" class="btn btn-primary">注册</a>
+        </ng-container>
+        <ng-container *ngIf="isLoggedIn">
+          <span class="user-info">你好，{{ currentUser?.nickname || currentUser?.username }}</span>
+          <button (click)="logout()" class="btn btn-outline">退出</button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>屿物</h3>
+        <p>发现生活中的小确幸，让文创好物温暖你的每一天。</p>
+      </div>
+      <div class="footer-section">
+        <h4>快速链接</h4>
+        <ul>
+          <li><a routerLink="/products">商品列表</a></li>
+          <li><a routerLink="/products/hot">热销排行</a></li>
+          <li><a routerLink="/carts">购物车</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>联系我们</h4>
+        <ul>
+          <li>邮箱：hello@yuwen.com</li>
+          <li>电话：400-888-8888</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 屿物 版权所有</p>
+    </div>
+  </div>
+</footer>

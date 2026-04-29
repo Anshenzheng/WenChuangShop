@@ -1,0 +1,108 @@
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">🛒 购物车</h1>
+    <p class="page-subtitle">已选 {{ selectedItems.length }} 件商品</p>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <div *ngIf="!loading">
+    <div *ngIf="cartItems.length > 0">
+      <div class="cart-item" style="background-color: var(--accent-color);">
+        <div style="width: 40px;">
+          <input 
+            type="checkbox" 
+            [checked]="selectedAll"
+            (change)="selectAll()">
+        </div>
+        <div style="flex: 1; font-weight: 600;">商品信息</div>
+        <div style="width: 120px; text-align: center; font-weight: 600;">单价</div>
+        <div style="width: 140px; text-align: center; font-weight: 600;">数量</div>
+        <div style="width: 120px; text-align: center; font-weight: 600;">小计</div>
+        <div style="width: 80px; text-align: center; font-weight: 600;">操作</div>
+      </div>
+      
+      <div *ngFor="let item of cartItems" class="cart-item">
+        <div style="width: 40px;">
+          <input 
+            type="checkbox" 
+            [checked]="selectedItems.includes(item.id)"
+            (change)="toggleSelection(item.id)">
+        </div>
+        <div class="d-flex gap-3" style="flex: 1; cursor: pointer;" (click)="goToProduct(item.productId)">
+          <img [src]="item.productImage" [alt]="item.productName" class="cart-item-image"
+               onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRThEQ0NFIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOEI3MzU1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+暂无图片</text></svg+'">
+          <div>
+            <div class="cart-item-name">{{ item.productName }}</div>
+          </div>
+        </div>
+        <div style="width: 120px; text-align: center;">
+          <span class="cart-item-price">¥{{ item.price.toFixed(2) }}</span>
+        </div>
+        <div style="width: 140px; display: flex; justify-content: center; align-items: center;">
+          <div class="quantity-control">
+            <button 
+              class="quantity-btn" 
+              (click)="updateQuantity(item, -1)"
+              [disabled]="item.quantity <= 1">
+              -
+            </button>
+            <span style="width: 40px; text-align: center; font-size: 14px;">{{ item.quantity }}</span>
+            <button 
+              class="quantity-btn" 
+              (click)="updateQuantity(item, 1)">
+              +
+            </button>
+          </div>
+        </div>
+        <div style="width: 120px; text-align: center;">
+          <span class="cart-item-price">¥{{ (item.price * item.quantity).toFixed(2) }}</span>
+        </div>
+        <div style="width: 80px; text-align: center;">
+          <button class="btn btn-outline btn-sm" (click)="removeItem(item)">删除</button>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-top: 24px;">
+        <div class="card-body" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="d-flex align-center gap-4">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" [checked]="selectedAll" (change)="selectAll()">
+              <span>全选</span>
+            </label>
+            <span class="text-muted">已选 {{ selectedItems.length }} 件商品</span>
+          </div>
+          <div class="d-flex align-center gap-3">
+            <div>
+              <span class="text-muted">合计：</span>
+              <span style="font-size: 24px; font-weight: 600; color: var(--primary-color);">¥{{ totalPrice.toFixed(2) }}</span>
+            </div>
+            <button 
+              class="btn btn-primary btn-lg"
+              (click)="goToCheckout()"
+              [disabled]="selectedItems.length === 0">
+              去结算
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="cartItems.length === 0" class="empty-state">
+      <div class="empty-state-icon">🛒</div>
+      <h3 class="empty-state-title">购物车是空的</h3>
+      <p class="empty-state-text">快去挑选喜欢的商品吧</p>
+      <button class="btn btn-primary mt-3" routerLink="/products">去逛逛</button>
+    </div>
+  </div>
+</div>

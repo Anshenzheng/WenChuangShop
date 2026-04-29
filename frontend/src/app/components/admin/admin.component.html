@@ -1,0 +1,183 @@
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">⚙️ 管理后台</h1>
+    <button class="btn btn-outline" (click)="goToShop()">返回商城</button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="admin-layout">
+    <div class="admin-sidebar">
+      <div class="admin-nav">
+        <div class="admin-nav-title">导航菜单</div>
+        <a 
+          *ngFor="let item of navItems"
+          class="admin-nav-item"
+          [class.active]="activeTab === item.id"
+          (click)="switchTab(item.id)">
+          {{ item.icon }} {{ item.label }}
+        </a>
+      </div>
+    </div>
+    
+    <div class="admin-content">
+      <div *ngIf="activeTab === 'products'">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">📦 商品管理</h3>
+            <div class="d-flex gap-2">
+              <input 
+                type="text" 
+                [(ngModel)]="productKeyword"
+                (keyup.enter)="searchProducts()"
+                class="form-control"
+                style="width: 200px;"
+                placeholder="搜索商品...">
+              <button class="btn btn-primary" (click)="searchProducts()">搜索</button>
+            </div>
+          </div>
+          <div class="admin-card-body">
+            <div *ngIf="loadingProducts" class="loading">
+              <div class="spinner"></div>
+            </div>
+            
+            <table *ngIf="!loadingProducts && products.length > 0" class="table">
+              <thead>
+                <tr>
+                  <th style="width: 80px;">ID</th>
+                  <th style="width: 100px;">图片</th>
+                  <th>商品名称</th>
+                  <th style="width: 100px;">价格</th>
+                  <th style="width: 80px;">库存</th>
+                  <th style="width: 80px;">销量</th>
+                  <th style="width: 80px;">状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let product of products">
+                  <td>{{ product.id }}</td>
+                  <td>
+                    <img 
+                      [src]="product.image" 
+                      [alt]="product.name" 
+                      style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"
+                      onerror="this.style.display='none'">
+                  </td>
+                  <td>{{ product.name }}</td>
+                  <td>¥{{ product.price.toFixed(2) }}</td>
+                  <td>{{ product.stock }}</td>
+                  <td>{{ product.sales }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="product.status === 1 ? 'badge-success' : 'badge-danger'">
+                      {{ product.status === 1 ? '上架' : '下架' }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <div *ngIf="!loadingProducts && products.length === 0" class="empty-state">
+              <div class="empty-state-icon">📦</div>
+              <h3 class="empty-state-title">暂无商品</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'orders'">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">📋 订单管理</h3>
+          </div>
+          <div class="admin-card-body">
+            <div *ngIf="loadingOrders" class="loading">
+              <div class="spinner"></div>
+            </div>
+            
+            <table *ngIf="!loadingOrders && orders.length > 0" class="table">
+              <thead>
+                <tr>
+                  <th>订单号</th>
+                  <th>收货人</th>
+                  <th>金额</th>
+                  <th>状态</th>
+                  <th>下单时间</th>
+                  <th style="width: 150px;">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let order of orders">
+                  <td style="font-family: monospace; font-size: 12px;">{{ order.orderNo }}</td>
+                  <td>{{ order.username }}</td>
+                  <td>¥{{ order.totalAmount.toFixed(2) }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusClass(order.status)">
+                      {{ getStatusText(order.status) }}
+                    </span>
+                  </td>
+                  <td>{{ order.createTime | date:'yyyy-MM-dd HH:mm' }}</td>
+                  <td>
+                    <button 
+                      *ngIf="order.status === 1"
+                      class="btn btn-primary btn-sm" 
+                      (click)="deliveryOrder(order)">
+                      发货
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <div *ngIf="!loadingOrders && orders.length === 0" class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              <h3 class="empty-state-title">暂无订单</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'categories'">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">🏷️ 分类管理</h3>
+          </div>
+          <div class="admin-card-body">
+            <table *ngIf="categories.length > 0" class="table">
+              <thead>
+                <tr>
+                  <th style="width: 80px;">ID</th>
+                  <th>分类名称</th>
+                  <th style="width: 100px;">排序</th>
+                  <th style="width: 100px;">状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let category of categories">
+                  <td>{{ category.id }}</td>
+                  <td>{{ category.name }}</td>
+                  <td>{{ category.sort }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="category.status === 1 ? 'badge-success' : 'badge-danger'">
+                      {{ category.status === 1 ? '启用' : '禁用' }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <div *ngIf="categories.length === 0" class="empty-state">
+              <div class="empty-state-icon">🏷️</div>
+              <h3 class="empty-state-title">暂无分类</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
