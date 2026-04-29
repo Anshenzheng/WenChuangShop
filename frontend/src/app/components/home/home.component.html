@@ -1,0 +1,83 @@
+<div class="container">
+  <div class="hero-section">
+    <h1 class="hero-title">屿物</h1>
+    <p class="hero-subtitle">发现生活中的小确幸 · 让文创好物温暖每一天</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <div *ngIf="!loading">
+    <div class="mb-4">
+      <div class="section-header">
+        <h2 class="section-title">🔥 热销排行</h2>
+        <a (click)="viewAllHot()" class="section-link" style="cursor: pointer;">查看全部 →</a>
+      </div>
+      
+      <div *ngIf="hotProducts.length > 0" class="product-grid">
+        <div 
+          *ngFor="let product of hotProducts; let i = index"
+          class="product-card"
+          (click)="goToProduct(product.id)">
+          <img [src]="product.image" [alt]="product.name" class="product-image" 
+               onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRThEQ0NFIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOEI3MzU1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+暂无图片</text></svg+'">
+          <div class="product-info">
+            <div class="d-flex align-center justify-between mb-1">
+              <span class="status-badge" [ngClass]="{
+                'status-paid': i === 0,
+                'status-delivered': i === 1,
+                'status-pending': true
+              }">
+                Top {{ i + 1 }}
+              </span>
+              <span class="text-muted" style="font-size: 12px;">已售 {{ product.sales }}</span>
+            </div>
+            <h3 class="product-name">{{ product.name }}</h3>
+            <div class="product-meta">
+              <span class="product-price">¥{{ product.price.toFixed(2) }}</span>
+              <span *ngIf="product.originalPrice > product.price" class="product-original-price">¥{{ product.originalPrice.toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="hotProducts.length === 0" class="empty-state">
+        <div class="empty-state-icon">🔥</div>
+        <h3 class="empty-state-title">暂无热销商品</h3>
+        <p class="empty-state-text">快来选购吧</p>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div class="section-header">
+        <h2 class="section-title">✨ 最新上架</h2>
+        <a (click)="viewAllNew()" class="section-link" style="cursor: pointer;">查看全部 →</a>
+      </div>
+      
+      <div *ngIf="newProducts.length > 0" class="product-grid">
+        <div 
+          *ngFor="let product of newProducts"
+          class="product-card"
+          (click)="goToProduct(product.id)">
+          <img [src]="product.image" [alt]="product.name" class="product-image"
+               onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRThEQ0NFIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOEI3MzU1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+暂无图片</text></svg+'">
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <div class="product-meta">
+              <span class="product-price">¥{{ product.price.toFixed(2) }}</span>
+              <span *ngIf="product.originalPrice > product.price" class="product-original-price">¥{{ product.originalPrice.toFixed(2) }}</span>
+              <span class="product-sales">已售 {{ product.sales }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="newProducts.length === 0" class="empty-state">
+        <div class="empty-state-icon">✨</div>
+        <h3 class="empty-state-title">暂无商品</h3>
+        <p class="empty-state-text">敬请期待更多好物</p>
+      </div>
+    </div>
+  </div>
+</div>

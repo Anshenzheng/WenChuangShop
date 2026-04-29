@@ -1,0 +1,113 @@
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">{{ isHot ? '🔥 热销排行' : '🎁 商品列表' }}</h1>
+    <p class="page-subtitle">{{ isHot ? '最受欢迎的文创好物' : '发现更多优质文创商品' }}</p>
+  </div>
+
+  <div *ngIf="!isHot" class="search-bar">
+    <div class="search-input">
+      <input 
+        type="text" 
+        [(ngModel)]="keyword" 
+        (keyup.enter)="search()"
+        placeholder="搜索商品...">
+    </div>
+    <button class="btn btn-primary" (click)="search()">搜索</button>
+  </div>
+
+  <div *ngIf="!isHot" class="category-filter">
+    <span 
+      class="category-tag" 
+      [class.active]="selectedCategory === null"
+      (click)="selectCategory(null)">
+      全部
+    </span>
+    <span 
+      *ngFor="let category of categories"
+      class="category-tag" 
+      [class.active]="selectedCategory === category.id"
+      (click)="selectCategory(category.id)">
+      {{ category.name }}
+    </span>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <div *ngIf="!loading">
+    <div *ngIf="products.length > 0">
+      <div class="product-grid">
+        <div 
+          *ngFor="let product of products; let i = index"
+          class="product-card"
+          (click)="goToProduct(product.id)">
+          <div style="position: relative;">
+            <img [src]="product.image" [alt]="product.name" class="product-image"
+                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRThEQ0NFIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOEI3MzU1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+暂无图片</text></svg+'">
+            <span *ngIf="isHot" class="status-badge status-paid" 
+                  style="position: absolute; top: 12px; left: 12px;">
+              Top {{ i + 1 }}
+            </span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <div class="product-meta">
+              <span class="product-price">¥{{ product.price.toFixed(2) }}</span>
+              <span *ngIf="product.originalPrice > product.price" class="product-original-price">¥{{ product.originalPrice.toFixed(2) }}</span>
+              <span class="product-sales">已售 {{ product.sales }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="totalPages > 1" class="pagination">
+        <button 
+          class="pagination-btn" 
+          [disabled]="page === 1"
+          (click)="changePage(page - 1)">
+          上一页
+        </button>
+        
+        <button 
+          *ngIf="pages[0] > 1"
+          class="pagination-btn"
+          (click)="changePage(1)">
+          1
+        </button>
+        <span *ngIf="pages[0] > 2" class="pagination-info">...</span>
+        
+        <button 
+          *ngFor="let p of pages"
+          class="pagination-btn"
+          [class.active]="p === page"
+          (click)="changePage(p)">
+          {{ p }}
+        </button>
+        
+        <span *ngIf="pages[pages.length - 1] < totalPages - 1" class="pagination-info">...</span>
+        <button 
+          *ngIf="pages[pages.length - 1] < totalPages"
+          class="pagination-btn"
+          (click)="changePage(totalPages)">
+          {{ totalPages }}
+        </button>
+        
+        <button 
+          class="pagination-btn" 
+          [disabled]="page === totalPages"
+          (click)="changePage(page + 1)">
+          下一页
+        </button>
+        
+        <span class="pagination-info ml-2">共 {{ total }} 件商品</span>
+      </div>
+    </div>
+
+    <div *ngIf="products.length === 0" class="empty-state">
+      <div class="empty-state-icon">📦</div>
+      <h3 class="empty-state-title">暂无商品</h3>
+      <p class="empty-state-text">敬请期待更多好物</p>
+    </div>
+  </div>
+</div>

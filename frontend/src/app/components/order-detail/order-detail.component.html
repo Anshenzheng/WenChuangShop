@@ -1,0 +1,160 @@
+<div class="container">
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <div *ngIf="!loading && order">
+    <div class="page-header" style="margin-bottom: 16px;">
+      <h1 class="page-title">订单详情</h1>
+      <p class="page-subtitle">订单号：{{ order.orderNo }}</p>
+    </div>
+
+    <div class="order-card">
+      <div class="order-header">
+        <div>
+          <h3 style="margin-bottom: 8px;">订单状态</h3>
+          <span class="status-badge" [ngClass]="getStatusClass(order.status)" style="font-size: 14px; padding: 6px 16px;">
+            {{ getStatusText(order.status) }}
+          </span>
+        </div>
+        <div class="d-flex gap-2">
+          <button *ngIf="canPay()" class="btn btn-primary" (click)="payOrder()" [disabled]="submitting">
+            确认订单
+          </button>
+          <button *ngIf="canComplete()" class="btn btn-success" (click)="completeOrder()" [disabled]="submitting">
+            确认收货
+          </button>
+          <button *ngIf="canCancel()" class="btn btn-danger" (click)="cancelOrder()" [disabled]="submitting">
+            取消订单
+          </button>
+          <button class="btn btn-outline" routerLink="/orders">
+            返回订单列表
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="checkout-form" style="margin-top: 24px;">
+      <h3 class="checkout-title">📦 收货信息</h3>
+      <div class="d-flex gap-4" style="flex-wrap: wrap;">
+        <div>
+          <span class="text-muted">收货人：</span>
+          <strong>{{ order.username }}</strong>
+        </div>
+        <div>
+          <span class="text-muted">手机号：</span>
+          <strong>{{ order.phone }}</strong>
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+          <span class="text-muted">收货地址：</span>
+          <strong>{{ order.address }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="checkout-form" style="margin-top: 24px;">
+      <h3 class="checkout-title">🎁 商品清单</h3>
+      
+      <div *ngFor="let item of orderItems" class="order-item">
+        <img [src]="item.productImage" [alt]="item.productName" class="order-item-image"
+             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI0U4RENDRSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM4QjczNTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5暂无图片</text></svg+'">
+        <div class="order-item-info">
+          <div class="order-item-name">{{ item.productName }}</div>
+          <div class="d-flex align-center gap-3">
+            <span class="order-item-price">¥{{ item.price.toFixed(2) }}</span>
+            <span class="order-item-quantity">x {{ item.quantity }}</span>
+            <span class="text-muted ml-auto">
+              小计：<strong style="color: var(--primary-color);">¥{{ item.totalAmount.toFixed(2) }}</strong>
+            </span>
+            <button 
+              *ngIf="canReview()" 
+              class="btn btn-outline btn-sm"
+              (click)="openReviewModal(item)">
+              评价
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-summary" style="margin-top: 24px;">
+      <h3 class="order-summary-title">💰 订单金额</h3>
+      
+      <div class="order-summary-row">
+        <span>商品总价</span>
+        <span>¥{{ order.totalAmount.toFixed(2) }}</span>
+      </div>
+      
+      <div class="order-summary-row">
+        <span>运费</span>
+        <span>¥0.00</span>
+      </div>
+      
+      <div class="order-summary-row total">
+        <span>订单金额</span>
+        <span>¥{{ order.totalAmount.toFixed(2) }}</span>
+      </div>
+      
+      <div class="mt-3" style="border-top: 1px solid var(--border-color); padding-top: 16px;">
+        <div class="text-muted" style="font-size: 13px;">
+          <div>下单时间：{{ order.createTime | date:'yyyy-MM-dd HH:mm:ss' }}</div>
+          <div *ngIf="order.paymentTime">确认时间：{{ order.paymentTime | date:'yyyy-MM-dd HH:mm:ss' }}</div>
+          <div *ngIf="order.deliveryTime">发货时间：{{ order.deliveryTime | date:'yyyy-MM-dd HH:mm:ss' }}</div>
+          <div *ngIf="order.completeTime">完成时间：{{ order.completeTime | date:'yyyy-MM-dd HH:mm:ss' }}</div>
+          <div *ngIf="order.remark">备注：{{ order.remark }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showReviewModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">评价商品</h3>
+        <button class="modal-close" (click)="closeReviewModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">评分</label>
+          <div style="font-size: 28px; cursor: pointer;">
+            <span 
+              *ngFor="let i of [1,2,3,4,5]"
+              [style.color]="i <= reviewRating ? '#C9A962' : '#E8E0D8'"
+              (click)="reviewRating = i">
+              ★
+            </span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">评价内容</label>
+          <textarea 
+            [(ngModel)]="reviewContent"
+            class="form-control"
+            placeholder="请输入您的评价内容..."
+            rows="4"
+            maxlength="500"></textarea>
+          <div class="form-text">{{ reviewContent.length }}/500</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="closeReviewModal()">取消</button>
+        <button 
+          class="btn btn-primary" 
+          (click)="submitReview()"
+          [disabled]="submitting || !reviewContent.trim()">
+          <span *ngIf="submitting">提交中...</span>
+          <span *ngIf="!submitting">提交评价</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

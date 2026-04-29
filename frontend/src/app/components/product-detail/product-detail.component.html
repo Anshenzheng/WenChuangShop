@@ -1,0 +1,140 @@
+<div class="container">
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <div *ngIf="!loading && product">
+    <div class="product-detail-container">
+      <div>
+        <img [src]="product.image" [alt]="product.name" class="product-detail-image"
+             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRThEQ0NFIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjIwIiBmaWxsPSIjOEI3MzU1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+暂无图片</text></svg+'">
+      </div>
+      
+      <div class="product-detail-info">
+        <h1 class="product-detail-name">{{ product.name }}</h1>
+        
+        <div class="product-detail-price">
+          <span class="current">¥{{ product.price.toFixed(2) }}</span>
+          <span *ngIf="product.originalPrice > product.price" class="original">¥{{ product.originalPrice.toFixed(2) }}</span>
+        </div>
+        
+        <div class="product-detail-meta">
+          <div class="product-detail-meta-item">
+            库存：<span>{{ product.stock }} 件</span>
+          </div>
+          <div class="product-detail-meta-item">
+            销量：<span>{{ product.sales }} 件</span>
+          </div>
+          <div class="product-detail-meta-item" *ngIf="product.categoryName">
+            分类：<span>{{ product.categoryName }}</span>
+          </div>
+        </div>
+        
+        <div class="product-detail-description">
+          <h3 class="product-detail-description-title">商品描述</h3>
+          <p class="product-detail-description-content">{{ product.description }}</p>
+        </div>
+        
+        <div class="product-detail-actions">
+          <div class="d-flex align-center gap-3">
+            <span class="form-label">数量：</span>
+            <div class="quantity-control">
+              <button 
+                class="quantity-btn" 
+                (click)="changeQuantity(-1)"
+                [disabled]="quantity <= 1">
+                -
+              </button>
+              <input type="number" [(ngModel)]="quantity" class="quantity-input" min="1" [max]="product.stock">
+              <button 
+                class="quantity-btn" 
+                (click)="changeQuantity(1)"
+                [disabled]="quantity >= product.stock">
+                +
+              </button>
+            </div>
+            <span class="text-muted" *ngIf="product.stock < 10">仅剩 {{ product.stock }} 件</span>
+          </div>
+          
+          <div class="d-flex gap-3 mt-3">
+            <button 
+              class="btn btn-primary btn-lg"
+              (click)="addToCart()"
+              [disabled]="addingToCart || product.stock === 0">
+              <span *ngIf="addingToCart">添加中...</span>
+              <span *ngIf="!addingToCart">加入购物车</span>
+            </button>
+            <button 
+              class="btn btn-outline btn-lg"
+              routerLink="/products">
+              继续浏览
+            </button>
+          </div>
+          
+          <div *ngIf="successMessage" class="alert alert-success mt-3">
+            {{ successMessage }}
+          </div>
+          
+          <div *ngIf="errorMessage" class="alert alert-error mt-3">
+            {{ errorMessage }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div class="section-header">
+        <h2 class="section-title">💬 用户评价</h2>
+        <span class="text-muted">共 {{ reviewTotal }} 条评价</span>
+      </div>
+      
+      <div *ngIf="reviews.length > 0">
+        <div *ngFor="let review of reviews" class="review-card">
+          <div class="review-header">
+            <div class="review-avatar">
+              {{ review.username?.charAt(0) || '用' }}
+            </div>
+            <div>
+              <div class="review-username">{{ review.username }}</div>
+              <div class="review-time">{{ review.createTime | date:'yyyy-MM-dd HH:mm' }}</div>
+            </div>
+            <div class="review-rating">
+              <span *ngFor="let _ of getStars(review.rating)" style="color: #C9A962;">★</span>
+              <span *ngFor="let _ of getEmptyStars(review.rating)" style="color: #E8E0D8;">★</span>
+            </div>
+          </div>
+          <p class="review-content">{{ review.content }}</p>
+        </div>
+        
+        <div *ngIf="reviewTotalPages > 1" class="pagination">
+          <button 
+            class="pagination-btn" 
+            [disabled]="reviewPage === 1"
+            (click)="reviewPage = reviewPage - 1; loadReviews(product!.id)">
+            上一页
+          </button>
+          <span class="pagination-info">第 {{ reviewPage }} / {{ reviewTotalPages }} 页</span>
+          <button 
+            class="pagination-btn" 
+            [disabled]="reviewPage === reviewTotalPages"
+            (click)="reviewPage = reviewPage + 1; loadReviews(product!.id)">
+            下一页
+          </button>
+        </div>
+      </div>
+      
+      <div *ngIf="reviews.length === 0" class="empty-state">
+        <div class="empty-state-icon">💬</div>
+        <h3 class="empty-state-title">暂无评价</h3>
+        <p class="empty-state-text">快来成为第一个评价的人吧</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !product" class="empty-state">
+    <div class="empty-state-icon">😕</div>
+    <h3 class="empty-state-title">商品不存在</h3>
+    <p class="empty-state-text">该商品可能已下架或被删除</p>
+    <button class="btn btn-primary mt-3" routerLink="/products">返回商品列表</button>
+  </div>
+</div>

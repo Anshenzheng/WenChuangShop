@@ -1,0 +1,104 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2 class="auth-title">加入屿物</h2>
+      <p class="auth-subtitle">创建账户，开始你的文创之旅</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div *ngIf="error" class="alert alert-error">
+        {{ error }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">用户名 <span style="color: var(--error-color)">*</span></label>
+        <input 
+          type="text" 
+          formControlName="username" 
+          class="form-control"
+          [class.form-error]="f['username'].invalid && (f['username'].dirty || f['username'].touched)"
+          placeholder="请输入用户名（3-20个字符）">
+        <div *ngIf="f['username'].invalid && (f['username'].dirty || f['username'].touched)">
+          <div *ngIf="f['username'].errors?.['required']" class="form-error">请输入用户名</div>
+          <div *ngIf="f['username'].errors?.['minlength'] || f['username'].errors?.['maxlength']" class="form-error">用户名长度为3-20个字符</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">昵称</label>
+        <input 
+          type="text" 
+          formControlName="nickname" 
+          class="form-control"
+          [class.form-error]="f['nickname'].invalid && (f['nickname'].dirty || f['nickname'].touched)"
+          placeholder="请输入昵称（最多20个字符）">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">邮箱</label>
+        <input 
+          type="email" 
+          formControlName="email" 
+          class="form-control"
+          [class.form-error]="f['email'].invalid && (f['email'].dirty || f['email'].touched)"
+          placeholder="请输入邮箱">
+        <div *ngIf="f['email'].invalid && (f['email'].dirty || f['email'].touched)" class="form-error">
+          请输入正确的邮箱格式
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">手机号</label>
+        <input 
+          type="tel" 
+          formControlName="phone" 
+          class="form-control"
+          [class.form-error]="f['phone'].invalid && (f['phone'].dirty || f['phone'].touched)"
+          placeholder="请输入手机号">
+        <div *ngIf="f['phone'].invalid && (f['phone'].dirty || f['phone'].touched)" class="form-error">
+          请输入正确的手机号
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">密码 <span style="color: var(--error-color)">*</span></label>
+        <input 
+          type="password" 
+          formControlName="password" 
+          class="form-control"
+          [class.form-error]="f['password'].invalid && (f['password'].dirty || f['password'].touched)"
+          placeholder="请输入密码（6-20个字符）">
+        <div *ngIf="f['password'].invalid && (f['password'].dirty || f['password'].touched)">
+          <div *ngIf="f['password'].errors?.['required']" class="form-error">请输入密码</div>
+          <div *ngIf="f['password'].errors?.['minlength'] || f['password'].errors?.['maxlength']" class="form-error">密码长度为6-20个字符</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">确认密码 <span style="color: var(--error-color)">*</span></label>
+        <input 
+          type="password" 
+          formControlName="confirmPassword" 
+          class="form-control"
+          [class.form-error]="f['confirmPassword'].invalid && (f['confirmPassword'].dirty || f['confirmPassword'].touched)"
+          placeholder="请再次输入密码">
+        <div *ngIf="f['confirmPassword'].invalid && (f['confirmPassword'].dirty || f['confirmPassword'].touched)">
+          <div *ngIf="f['confirmPassword'].errors?.['required']" class="form-error">请输入确认密码</div>
+          <div *ngIf="f['confirmPassword'].errors?.['mismatch']" class="form-error">两次输入的密码不一致</div>
+        </div>
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-lg btn-block"
+        [disabled]="loading || registerForm.invalid">
+        <span *ngIf="loading">注册中...</span>
+        <span *ngIf="!loading">注册</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      已有账户？<a routerLink="/login">立即登录</a>
+    </div>
+  </div>
+</div>

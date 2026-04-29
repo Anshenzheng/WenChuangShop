@@ -1,0 +1,71 @@
+<div class="container">
+  <div class="page-header">
+    <h1 class="page-title">📋 我的订单</h1>
+    <p class="page-subtitle">共 {{ total }} 个订单</p>
+  </div>
+
+  <div class="category-filter" style="margin-bottom: 24px;">
+    <span 
+      *ngFor="let tab of statusTabs"
+      class="category-tag"
+      [class.active]="currentStatus === tab.value"
+      (click)="filterByStatus(tab.value)">
+      {{ tab.label }}
+    </span>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <div *ngIf="!loading">
+    <div *ngIf="orders.length > 0">
+      <div *ngFor="let order of orders" class="order-card" style="cursor: pointer;" (click)="goToOrder(order.id)">
+        <div class="order-header">
+          <div class="d-flex align-center">
+            <span class="order-no">订单号：{{ order.orderNo }}</span>
+            <span class="order-time">{{ order.createTime | date:'yyyy-MM-dd HH:mm' }}</span>
+          </div>
+          <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+            {{ getStatusText(order.status) }}
+          </span>
+        </div>
+        <div class="order-footer">
+          <div></div>
+          <div class="d-flex align-center gap-3">
+            <span class="order-total">
+              共 1 件商品，合计：
+              <span>¥{{ order.totalAmount.toFixed(2) }}</span>
+            </span>
+            <button class="btn btn-outline btn-sm" (click)="$event.stopPropagation()">
+              查看详情
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="totalPages > 1" class="pagination">
+        <button 
+          class="pagination-btn" 
+          [disabled]="page === 1"
+          (click)="changePage(page - 1)">
+          上一页
+        </button>
+        <span class="pagination-info">第 {{ page }} / {{ totalPages }} 页，共 {{ total }} 个订单</span>
+        <button 
+          class="pagination-btn" 
+          [disabled]="page === totalPages"
+          (click)="changePage(page + 1)">
+          下一页
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="orders.length === 0" class="empty-state">
+      <div class="empty-state-icon">📋</div>
+      <h3 class="empty-state-title">暂无订单</h3>
+      <p class="empty-state-text">快去选购喜欢的商品吧</p>
+      <button class="btn btn-primary mt-3" routerLink="/products">去逛逛</button>
+    </div>
+  </div>
+</div>
