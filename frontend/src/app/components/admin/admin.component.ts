@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { OrderService } from '../../services/order.service';
-import { UserService } from '../../services/user.service';
 import { Product, Category, PageResult } from '../../models/product.model';
-import { Order, OrderStatus, OrderStatusText, OrderItem } from '../../models/order.model';
+import { Order, OrderStatus, OrderStatusText } from '../../models/order.model';
+import { ApiResponse } from '../../models/common.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin',
@@ -139,7 +140,7 @@ export class AdminComponent implements OnInit {
     if (!confirm('确定要发货吗？')) return;
     
     this.orderService.deliveryOrder(order.id).subscribe({
-      next: (response) => {
+      next: (response: ApiResponse<void>) => {
         if (response.code === 200) {
           this.successMessage = '发货成功';
           this.loadOrders();
@@ -149,8 +150,8 @@ export class AdminComponent implements OnInit {
           setTimeout(() => this.errorMessage = '', 3000);
         }
       },
-      error: (err) => {
-        this.errorMessage = err.error?.message || '操作失败';
+      error: (err: HttpErrorResponse) => {
+        this.errorMessage = (err.error as ApiResponse<unknown>)?.message || '操作失败';
         setTimeout(() => this.errorMessage = '', 3000);
       }
     });

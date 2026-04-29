@@ -1,14 +1,14 @@
 export interface Review {
   id: number;
   userId: number;
-  username: string;
-  avatar: string;
+  username: string | null | undefined;
+  avatar: string | null | undefined;
   productId: number;
   orderId: number;
   orderItemId: number;
   rating: number;
   content: string;
-  images: string;
+  images: string | null | undefined;
   status: number;
   createTime: string;
 }

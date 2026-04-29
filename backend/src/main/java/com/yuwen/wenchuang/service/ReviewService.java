@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,6 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final UserService userService;
     private final OrderService orderService;
-    private final OrderItemMapper orderItemMapper;
     
     public PageResult<Review> getReviewsByProduct(Long productId, Integer page, Integer size) {
         Page<Review> pageParam = new Page<>(page, size);
@@ -83,13 +83,13 @@ public class ReviewService {
             return Result.error("订单尚未完成，无法评价");
         }
         
-        OrderItem orderItem = orderItemMapper.selectById(dto.getOrderItemId());
-        if (orderItem == null) {
-            return Result.error("订单项不存在");
-        }
+        List<OrderItem> orderItems = orderService.getOrderItems(order.getId());
+        Optional<OrderItem> orderItemOpt = orderItems.stream()
+                .filter(item -> item.getId().equals(dto.getOrderItemId()))
+                .findFirst();
         
-        if (!orderItem.getOrderId().equals(order.getId())) {
-            return Result.error("订单项不属于该订单");
+        if (orderItemOpt.isEmpty()) {
+            return Result.error("订单项不存在");
         }
         
         Review existReview = reviewMapper.selectOne(
