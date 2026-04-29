@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse } from '../models/common.model';
-import { Review, CreateReviewRequest, PageResult } from '../models/review.model';
+import { Review, CreateReviewRequest } from '../models/review.model';
+import { PageResult } from '../models/product.model';
 
 const API_URL = 'http://localhost:8080/api';
 

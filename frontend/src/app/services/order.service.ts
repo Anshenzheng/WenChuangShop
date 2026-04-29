@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse } from '../models/common.model';
-import { Order, OrderItem, CreateOrderRequest, CreateOrderResponse, PageResult } from '../models/order.model';
+import { Order, OrderItem, CreateOrderRequest, CreateOrderResponse } from '../models/order.model';
+import { PageResult } from '../models/product.model';
 
 const API_URL = 'http://localhost:8080/api';
 
@@ -43,5 +44,9 @@ export class OrderService {
   
   cancelOrder(orderId: number): Observable<ApiResponse<void>> {
     return this.http.put<ApiResponse<void>>(`${API_URL}/orders/${orderId}/cancel`, {});
+  }
+
+  deliveryOrder(orderId: number): Observable<ApiResponse<void>> {
+    return this.http.put<ApiResponse<void>>(`${API_URL}/admin/orders/${orderId}/delivery`, {});
   }
 }
